@@ -1,0 +1,11 @@
+[project]
+name = "docs-ofline"
+version = "0.1.0"
+description = "Run docs ofline"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp>=3.13.5",
+    "aiohttp-index>=0.1",
+    "pytest",
+]

@@ -1,0 +1,10 @@
+.venv
+.env
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.vscode
+
+
+*.pyc
+sites/
