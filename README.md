@@ -1,29 +1,63 @@
-# Задание
+# local-docs
 
-## Структура проекта
+`local-docs` serves downloaded static documentation sites through one
+host-based local server.
+
+## Installation
 
 ```bash
-project/
-├── main.py
-├── sites
-│   ├── site-1
-│   ├── site-2
-│   ├── site-3
+pip install local-docs
 ```
 
-### site-1, site-2, site-3
+For development, install the project with its development dependencies:
 
-дирректории содержащие статические сайты
+```bash
+uv sync
+```
 
-## main.py
+## Usage
 
-скрипт для запуска aiohttp сервера
+Put each downloaded site in its own directory under `sites/`, then run:
 
+```bash
+local-docs
+```
 
-## задание
+The server listens on `127.0.0.1:8080` by default. If that port is busy, a
+free port is selected automatically. The `/docs_local` page lists all
+available sites. Site requests are routed by their HTTP host name, for
+example:
 
-сформирповать код для сервера
+```text
+http://site-1:8080/
+http://site-1:8080/about
+http://127.0.0.1:8080/docs_local
+```
 
-- сервер должен слушать localhost
-- на сервер дожны передаваться заросы типа: `site-1.local/`, `site-1.local/about`, `site-2.local/obout`, `site-3.local/contacts` и т.п.
-- сервер должен возвращать информацию касающегося конкретного сайта, в соответствии с запросом, т.е. информаия для path должна браться из дирректории соответствуюей конкретному сайту.  
+The command also supports `python -m local_docs`.
+
+## Configuration
+
+Environment variables can configure the server:
+
+```bash
+HOST=127.0.0.1
+PORT=8080
+SITES_DIR=/path/to/sites
+OPEN_BROWSER=1
+LOG_LEVEL=INFO
+```
+
+The browser opens `/docs_local` after startup by default. Disable it with:
+
+```bash
+OPEN_BROWSER=0 local-docs
+```
+
+Command-line options override environment variables:
+`--host`, `--port`, `--sites-dir`, `--open-browser`, `--no-browser`, and
+`--log-level`.
+
+The application manages its marked entries in the system hosts file and
+removes them during clean shutdown. Running the command may therefore
+require administrator privileges.

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from typing import Any, cast
 
 from aiohttp import web
 
@@ -49,7 +50,8 @@ async def run_server(config: AppConfig) -> None:
             )
             site = web.TCPSite(runner, config.bind_host, 0)
             await site.start()
-        sockets = site._server.sockets if site._server is not None else []
+        server = cast(Any, site._server)
+        sockets = server.sockets if server is not None else []
         if not sockets:
             raise RuntimeError("Server started without a listening socket")
         actual_port = sockets[0].getsockname()[1]
