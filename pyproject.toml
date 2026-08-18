@@ -1,11 +1,36 @@
 [project]
-name = "docs-ofline"
+name = "local-docs"
 version = "0.1.0"
-description = "Run docs ofline"
+description = "Serve downloaded static documentation locally"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "aiohttp>=3.13.5",
-    "aiohttp-index>=0.1",
-    "pytest",
+]
+
+[project.scripts]
+local-docs = "local_docs.cli:main"
+
+[dependency-groups]
+dev = [
+    "build>=1.2.2",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.9",
+    "mypy>=1.13",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/local_docs"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/src",
+    "/README.md",
+    "/Plan.md",
+    "/pyproject.toml",
 ]
