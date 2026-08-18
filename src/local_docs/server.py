@@ -35,24 +35,24 @@ async def run_server(config: AppConfig) -> None:
     browser_task: asyncio.Task[None] | None = None
     try:
         hosts.update(site_names)
-        port = config.preferred_port
-        app = create_app(config, registry, port)
+        app = create_app(config, registry, config.preferred_port)
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, config.bind_host, port)
+        site = web.TCPSite(runner, config.bind_host, config.preferred_port)
         try:
             await site.start()
         except OSError:
-            if port == 0:
+            if config.preferred_port == 0:
                 raise
-            logger.warning("Port %s is busy; selecting a free port", port)
-            await runner.cleanup()
-            app = create_app(config, registry, 0)
-            runner = web.AppRunner(app)
-            await runner.setup()
+            logger.warning(
+                "Port %s is busy; selecting a free port", config.preferred_port
+            )
             site = web.TCPSite(runner, config.bind_host, 0)
             await site.start()
-        actual_port = site._server.sockets[0].getsockname()[1]  # type: ignore[union-attr]
+        sockets = site._server.sockets if site._server is not None else []
+        if not sockets:
+            raise RuntimeError("Server started without a listening socket")
+        actual_port = sockets[0].getsockname()[1]
         app["port"] = actual_port
         logger.info("Serving local documentation at http://%s:%s/docs_local", config.bind_host, actual_port)
         if config.open_browser:
