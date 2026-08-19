@@ -32,11 +32,22 @@ class HostsManager:
 
     def _write(self, lines: list[str]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with tempfile.NamedTemporaryFile(
-            "w", encoding="utf-8", dir=self.path.parent, delete=False
-        ) as temporary:
-            temporary.writelines(lines)
-            temporary_path = Path(temporary.name)
+        original_stat = self.path.stat() if self.path.exists() else None
+        try:
+            with tempfile.NamedTemporaryFile(
+                "w", encoding="utf-8", dir=self.path.parent, delete=False
+            ) as temporary:
+                temporary.writelines(lines)
+                temporary_path = Path(temporary.name)
+            if original_stat is not None:
+                os.chmod(temporary_path, original_stat.st_mode)
+                if hasattr(os, "chown") and os.geteuid() == 0:
+                    os.chown(temporary_path, original_stat.st_uid, original_stat.st_gid)
+        except PermissionError as error:
+            raise PermissionError(
+                f"Cannot modify hosts file {self.path}; "
+                "run local-docs with administrator privileges"
+            ) from error
         try:
             os.replace(temporary_path, self.path)
         finally:

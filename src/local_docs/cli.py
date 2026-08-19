@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import logging
+import sys
 from pathlib import Path
 
 from local_docs.config import AppConfig
@@ -37,4 +38,7 @@ def main() -> int:
         asyncio.run(run_server(config))
     except KeyboardInterrupt:
         logging.getLogger(__name__).info("Server stopped")
+    except PermissionError as error:
+        print(error, file=sys.stderr)
+        return 1
     return 0

@@ -34,8 +34,10 @@ async def run_server(config: AppConfig) -> None:
     hosts = HostsManager(config.hosts_path)
     runner: web.AppRunner | None = None
     browser_task: asyncio.Task[None] | None = None
+    hosts_updated = False
     try:
         hosts.update(site_names)
+        hosts_updated = True
         app = create_app(config, registry, config.preferred_port)
         runner = web.AppRunner(app)
         await runner.setup()
@@ -68,4 +70,5 @@ async def run_server(config: AppConfig) -> None:
             await asyncio.gather(browser_task, return_exceptions=True)
         if runner is not None:
             await runner.cleanup()
-        hosts.clean()
+        if hosts_updated:
+            hosts.clean()
